@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div class="home_header">
+      <a class="link" href="./index.html"><button>Trang chính</button></a>
+    </div>
+    <div class="create_wrap">
+      <div class="create_content">
+        <button>Create</button>
+        <input type="text" name="" id="" placeholder="Title" />
+        <textarea name="" id="" placeholder="Câu hỏi, đáp án"></textarea>
+      </div>
+      <div class="create_preview"></div>
+    </div>
+
+    <style>
+      .home_header {
+        display: flex;
+        justify-content: end;
+        padding: 20px;
+        width: 100%;
+        min-height: 50px;
+        background-color: white;
+      }
+      .home_header button {
+        width: 150px;
+      }
+      .create_wrap {
+        padding: 20px;
+        display: flex;
+        gap: 20px;
+      }
+      .create_content {
+        padding: 20px;
+        background-color: white;
+        min-height: 500px;
+        width: 50%;
+        display: flex;
+        flex-direction: column;
+        border-radius: 12px;
+      }
+      .create_content button {
+        min-width: 80px;
+      }
+      .create_content input {
+        margin-top: 20px;
+        min-height: 30px;
+        font-size: 1.4rem;
+        padding: 5px;
+      }
+      .create_content textarea {
+        margin-top: 20px;
+        padding: 10px;
+        min-height: 400px;
+        resize: none;
+        border-radius: 8px;
+      }
+      .create_content button {
+        max-width: 100px;
+      }
+      .create_preview {
+        background-color: white;
+        min-height: 500px;
+        width: 50%;
+        border-radius: 12px;
+      }
+    </style>
+    <script>
+      const btn = document.querySelector(".create_content button");
+      const textarea = document.querySelector(".create_content textarea");
+      const input = document.querySelector(".create_content input");
+
+      // create slug
+      function convertToSlug(input) {
+        // Bỏ dấu tiếng Việt
+        const removeVietnameseTones = (str) => {
+          return str
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "") // Loại bỏ dấu
+            .replace(/đ/g, "d") // Chuyển đ -> d
+            .replace(/Đ/g, "D");
+        };
+
+        // Chuyển chuỗi thành dạng slug
+        return removeVietnameseTones(input)
+          .toLowerCase() // Chuyển thành chữ thường
+          .replace(/\s+/g, "-") // Thay khoảng trắng bằng dấu '-'
+          .replace(/[^a-z0-9-]/g, "") // Loại bỏ ký tự đặc biệt
+          .replace(/-+/g, "-") // Xóa dấu '-' thừa
+          .replace(/^-|-$/g, ""); // Xóa dấu '-' ở đầu và cuối
+      }
+
+      function parseQuizData(input) {
+        let questions = [];
+        let results = [];
+        let questionId = 1;
+
+        //Get Question
+        const blocks = input.trim().split(/\n{2,}/); // Tách văn bản thành các khối, mỗi khối cách nhau bởi một hoặc nhiều dấu xuống dòng
+        blocks.forEach((block, index) => {
+          // console.log(`Khối ${index + 1}:`);
+          // console.log(block);
+          // console.log("-------------------");
+          const lines = block.split("\n"); // Tách văn bản thành mảng các dòng
+          let obj = {
+            quiz_id: questionId++,
+            question: lines[0].trim(),
+            answers: [],
+          };
+          for (let i = 1; i < lines.length; i++) {
+            //   console.log(lines[i]); // In từng dòng
+            if (lines[i].trim() !== "") obj.answers.push(lines[i].trim());
+          }
+          questions.push(obj);
+        });
+
+        // Get Result
+
+        for (let i = 0; i < questions.length; i++) {
+          let obj = {
+            quiz_id: questions[i].quiz_id,
+            answer: "",
+          };
+          for (let j = 0; j < questions[i].answers.length; j++) {
+            //   console.log(questions[i].answers[j]);
+            if (questions[i].answers[j].startsWith("*")) {
+              questions[i].answers[j] = questions[i].answers[j].slice(1);
+              obj.answer = questions[i].answers[j];
+            }
+          }
+          results.push(obj);
+        }
+        return {
+          questions: questions,
+          results: results,
+        };
+      }
+      btn.addEventListener("click", function () {
+        let inputTextarea = textarea.value; // Lấy lại giá trị sau khi nhấn nút
+        //   console.log(input); // In giá trị của textarea khi nhấn nút
+        let result = parseQuizData(inputTextarea);
+        slug = convertToSlug(input.value);
+        result.slug = slug;
+        result.title = input.value;
+        console.log(result);
+        localStorage.setItem(slug, JSON.stringify(result));
+
+        // const savedData = localStorage.getItem("lichSuDang");
+        // const data = JSON.parse(savedData);
+        // localStorage.removeItem("lichSuDang");
+        // console.log(data);
+      });
+    </script>
+    <script src="./index.js"></script>
+  </body>
+</html>

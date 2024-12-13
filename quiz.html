@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="./style.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
+  </head>
+  <body>
+    <div class="quiz_wrapper">
+      <div class="quiz_option">
+        <p class="subject_title">Lịch Sử Đảng</p>
+        <hr />
+        <p>Thời gian làm bài:</p>
+        <div class="timer">
+          <span id="hours">00</span> : <span id="minutes">00</span> :
+          <span id="seconds">00</span>
+        </div>
+        <hr />
+        <p>Tự động chuyển câu:</p>
+        <div class="dropdown">
+          <div class="dropdown_wrap">
+            <button class="dropdown-button">Tắt</button>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="size-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="m19.5 8.25-7.5 7.5-7.5-7.5"
+              />
+            </svg>
+          </div>
+          <div class="dropdown-content">
+            <a href="#" data-value="1">1s</a>
+            <a href="#" data-value="2">2s</a>
+            <a href="#" data-value="5">5s</a>
+            <a href="#" data-value="0">Tắt</a>
+          </div>
+        </div>
+        <hr />
+
+        <!-- <hr /> -->
+
+        <a class="link" href="./index.html"><button>Trở lại</button></a>
+      </div>
+      <div class="wrap_question">
+        <!-- <p>Câu 1 trên 100</p> -->
+        <p id="question">
+          Câu 1: Lorem ipsum dolor sit amet consectetur adipisicing elit.
+          Aspernatur sit eligendi autem maxime ullam harum voluptas eos cum
+          alias, dolorem sed est perspiciatis fugiat numquam suscipit voluptate
+          illo nobis iste!
+        </p>
+        <ul>
+          <li><span class="answer_item selected">khuc</span></li>
+          <li><span class="answer_item">khuc</span></li>
+          <li><span class="answer_item">khuc</span></li>
+          <li><span class="answer_item">khuc</span></li>
+        </ul>
+      </div>
+      <div class="wrap_list">
+        <p>Mục lục câu hỏi</p>
+        <ul>
+          <li class="selected">1</li>
+          <li class="active">2</li>
+          <li>3</li>
+          <li>4</li>
+          <li>5</li>
+        </ul>
+        <div class="button">
+          <div class="button_nav">
+            <button id="prev">Trước</button>
+            <button id="next">Sau</button>
+          </div>
+          <button id="retry">Làm lại câu sai</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="./main.js"></script>
+    <script src="./index.js"></script>
+  </body>
+</html>
