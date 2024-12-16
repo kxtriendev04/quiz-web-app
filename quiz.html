@@ -8,6 +8,26 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
   </head>
   <body>
+    <div class="overlay"></div>
+    <div class="submit_form">
+      <svg
+        class="submit_form-icon"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="1.5"
+        stroke="currentColor"
+        class="size-6"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M6 18 18 6M6 6l12 12"
+        />
+      </svg>
+
+      <h3 class="submit_form-title">Điểm số:</h3>
+    </div>
     <div class="quiz_wrapper">
       <div class="quiz_option">
         <p class="subject_title">Lịch Sử Đảng</p>
@@ -66,7 +86,7 @@
         </ul>
       </div>
       <div class="wrap_list">
-        <p>Mục lục câu hỏi</p>
+        <p class="content_title">Mục lục câu hỏi:</p>
         <ul>
           <li class="selected">1</li>
           <li class="active">2</li>
@@ -79,7 +99,12 @@
             <button id="prev">Trước</button>
             <button id="next">Sau</button>
           </div>
+          <div class="wrap_content">
+            <p class="question_correct">Số câu đúng:</p>
+            <p class="question_incorrect">Số câu sai:</p>
+          </div>
           <button id="retry">Làm lại câu sai</button>
+          <button id="submit">Nộp bài</button>
         </div>
       </div>
     </div>

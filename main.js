@@ -206,10 +206,18 @@ let quizAnswers = document.querySelectorAll(".wrap_question ul li");
 const quizAnswerItems = document.querySelectorAll(
   ".wrap_question ul li .answer_item"
 );
+const overlay = document.querySelector(".overlay");
+const submitForm = document.querySelector(".submit_form");
+const submitFormIcon = document.querySelector(".submit_form-icon");
+const submitFormTitle = document.querySelector(".submit_form-title");
+
 const quizQuestionList = document.querySelector(".wrap_list ul");
+const correctLabel = document.querySelector(".question_correct");
+const incorrectLabel = document.querySelector(".question_incorrect");
 const quizBtnNext = document.querySelector("#next");
 const quizBtnPrev = document.querySelector("#prev");
 const retryButton = document.querySelector("#retry");
+const submitButton = document.querySelector("#submit");
 const quizQuestionUl = document.querySelector(".wrap_question ul");
 let quizQuestionItem = document.querySelectorAll(".wrap_list ul li");
 let hours = 0;
@@ -220,6 +228,19 @@ let currentIndex = null;
 let switchQuestionTime = 0;
 let listSelected = [];
 let listAnswersStatus = [];
+let correctCount = 0,
+  incorrectCount = 0;
+
+// Thêm sự kiện click vào overlay
+overlay.addEventListener("click", function () {
+  // Ẩn overlay và form khi click vào overlay
+  overlay.style.display = "none";
+  submitForm.style.display = "none";
+});
+submitFormIcon.addEventListener("click", function () {
+  overlay.style.display = "none";
+  submitForm.style.display = "none";
+});
 
 const quiz = {
   getData: async function () {
@@ -308,7 +329,6 @@ const quiz = {
   },
   handleQuestionList: function () {
     quizQuestionItem.forEach((item, index) => {
-      //   console.log("item:", item);
       item.addEventListener("click", () => {
         quizQuestionItem.forEach((item) => {
           item.classList.remove("active");
@@ -316,10 +336,6 @@ const quiz = {
         item.classList.add("active");
         currentIndex = index;
         quiz.handleCurrentQuestion();
-        quizAnswers.forEach((answer, index) => {
-          //   answer.classList.remove("correct");
-          //   answer.classList.remove("incorrect");
-        });
         const selected = listSelected[currentIndex];
         selected >= 0 && quizAnswers[selected].click();
       });
@@ -327,27 +343,21 @@ const quiz = {
     quizQuestionItem[0].click();
   },
   handleAnswerItem: function () {
-    // console.log("quizAnswers: ", quizAnswers);
     quizAnswers = document.querySelectorAll(".wrap_question ul li");
     quizAnswers.forEach((answer, index) => {
-      //   console.log(answer);
       answer.addEventListener("click", () => {
         // Check result
         if (listSelected[currentIndex] != null) {
           return;
         }
         const child = answer.querySelector(".answer_item");
-        // console.log(answer.innerText);
-        // console.log(results[child.getAttribute("question-id") - 1].answer);
         const trueAnswer =
           results[child.getAttribute("question-id") - 1].answer;
         if (answer.innerText == trueAnswer) {
           answer.classList.add("correct");
+          ++correctCount;
           quizQuestionItem[currentIndex].classList.add("correct");
           listAnswersStatus[currentIndex] = true;
-          // console.log(child.parentNode);
-          // quizAnswers = document.querySelectorAll(".wrap_question ul li");
-          // console.log(quizAnswers);
           quizAnswers.forEach((li, i) => {
             li.style.pointerEvents = "none";
             if (!li.classList.contains("correct")) {
@@ -356,6 +366,7 @@ const quiz = {
           });
         } else {
           answer.classList.add("incorrect");
+          ++incorrectCount;
           quizQuestionItem[currentIndex].classList.add("incorrect");
           listAnswersStatus[currentIndex] = false;
           quizAnswers.forEach((answer, index) => {
@@ -373,6 +384,8 @@ const quiz = {
         listSelected[currentIndex] = index;
 
         // Chuyển câu hỏi
+        console.log(currentIndex, questions.length - 1);
+        if (currentIndex === questions.length - 1) return;
         if (switchQuestionTime > 0) {
           intervalId = setInterval(() => {
             ++currentIndex;
@@ -389,6 +402,11 @@ const quiz = {
         }
       });
     });
+    quiz.updateCountCorrectIncorrect();
+  },
+  updateCountCorrectIncorrect: function () {
+    correctLabel.innerText = "Số câu đúng: " + correctCount;
+    incorrectLabel.innerText = "Số câu sai: " + incorrectCount;
   },
   handleCurrentQuestion: function () {
     quizQuestion.innerHTML = questions[currentIndex].question;
@@ -458,18 +476,15 @@ const quiz = {
   handleShortcut: function () {
     // Lắng nghe sự kiện keydown một lần khi trang được tải
     document.addEventListener("keydown", (event) => {
-      if (event.key === "ArrowRight") {
-        // Chuyển câu hỏi khi nhấn mũi tên phải
+      if (event.key === "ArrowRight" || event.key === "ArrowUp") {
+        // Chuyển câu hỏi khi nhấn mũi tên phải hoặc trên
         ++currentIndex;
         if (currentIndex >= questions.length) {
           currentIndex = 0;
         }
         quizQuestionItem[currentIndex].click();
-      }
-    });
-    document.addEventListener("keydown", (event) => {
-      if (event.key === "ArrowLeft") {
-        // Chuyển câu hỏi khi nhấn mũi tên trái
+      } else if (event.key === "ArrowLeft" || event.key === "ArrowDown") {
+        // Chuyển câu hỏi khi nhấn mũi tên trái hoặc dưới
         --currentIndex;
         if (currentIndex < 0) {
           currentIndex = questions.length - 1;
@@ -490,7 +505,7 @@ const quiz = {
     quizQuestionItem = document.querySelectorAll(".wrap_list ul li");
     // console.log("quizQuestionItem: ", quizQuestionItem);
   },
-  retryWrongAnswers: function () {
+  handleRetryWrongAnswers: function () {
     retryButton.addEventListener("click", () => {
       // Lọc ra các câu hỏi sai và loại bỏ câu hỏi đúng khỏi danh sách
       if (listAnswersStatus)
@@ -502,10 +517,23 @@ const quiz = {
       listSelected = []; // Đặt lại các câu trả lời đã chọn
       listAnswersStatus = []; // Đặt lại trạng thái của câu trả lời (đúng hay sai)
 
+      // Set correct & incorrect Count
+      incorrectCount = 0;
+      correctCount = 0;
+      this.updateCountCorrectIncorrect();
+
       // Sau khi thay đổi câu hỏi, cần cập nhật lại danh sách câu hỏi và câu trả lời
       quiz.renderQuestionList(); // Cập nhật lại danh sách câu hỏi
       quiz.handleQuestionList(); // Thiết lập lại sự kiện cho các câu hỏi
       quiz.handleAnswerItem(); // Thiết lập lại sự kiện cho các câu trả lời
+    });
+  },
+  handleSubmit: function () {
+    submitButton.addEventListener("click", () => {
+      overlay.style.display = "block";
+      submitForm.style.display = "flex";
+      let grade = (10 / questions.length) * correctCount;
+      submitFormTitle.innerText = "Điểm số: " + Number(grade.toFixed(2));
     });
   },
 
@@ -520,194 +548,8 @@ const quiz = {
     this.handleNext();
     this.handlePrev();
     this.handleShortcut();
-    this.retryWrongAnswers();
+    this.handleRetryWrongAnswers();
+    this.handleSubmit();
   },
 };
 quiz.start();
-// randomQuestion.addEventListener("change", (item) => {
-//   if (item.target.checked === true) {
-//     questions = questions.sort(() => Math.random() - Math.random());
-//     quiz.start();
-//   }
-// });
-// randomAnswer.addEventListener("change", (item) => {
-//   if (item.target.checked === true) {
-//     questions = questions.sort(() => Math.random() - Math.random());
-//     questions.forEach((q) => {
-//       q.answers = q.answers.sort(() => Math.random() - Math.random());
-//     });
-//     quiz.start();
-//   }
-// });
-// function parseQuizData(input) {
-//   let questions = [];
-//   let results = [];
-//   let questionId = 1;
-
-//   //Get Question
-//   const blocks = input.trim().split(/\n{2,}/); // Tách văn bản thành các khối, mỗi khối cách nhau bởi một hoặc nhiều dấu xuống dòng
-//   blocks.forEach((block, index) => {
-//     // console.log(`Khối ${index + 1}:`);
-//     // console.log(block);
-//     // console.log("-------------------");
-//     const lines = block.split("\n"); // Tách văn bản thành mảng các dòng
-//     let obj = {
-//       quiz_id: questionId++,
-//       question: lines[0].trim(),
-//       answers: [],
-//     };
-//     for (let i = 1; i < lines.length; i++) {
-//       //   console.log(lines[i]); // In từng dòng
-//       if (lines[i].trim() !== "") obj.answers.push(lines[i].trim());
-//     }
-//     questions.push(obj);
-//   });
-
-//   // Get Result
-
-//   for (let i = 0; i < questions.length; i++) {
-//     let obj = {
-//       quiz_id: questions[i].quiz_id,
-//       answer: "",
-//     };
-//     for (let j = 0; j < questions[i].answers.length; j++) {
-//       //   console.log(questions[i].answers[j]);
-//       if (questions[i].answers[j].startsWith("*")) {
-//         questions[i].answers[j] = questions[i].answers[j].slice(1);
-//         obj.answer = questions[i].answers[j];
-//       }
-//     }
-//     results.push(obj);
-//   }
-//   return {
-//     questions: questions,
-//     results: results,
-//   };
-// }
-// console.log(btn);
-// btn.addEventListener("click", async function () {
-//   let input = textarea.value; // Lấy lại giá trị sau khi nhấn nút
-//   //   console.log(input); // In giá trị của textarea khi nhấn nút
-//   let result = parseQuizData(input);
-//   results = result.results;
-//   questions = results.questions;
-//   // In kết quả
-//   quiz.start();
-//   console.log(result);
-// });
-
-// quiz.start();
-
-// function parseQuizData(input) {
-//   let questions = [];
-//   let results = [];
-//   let questionId = 1;
-
-//   //Get Question
-//   const blocks = input.trim().split(/\n{2,}/); // Tách văn bản thành các khối, mỗi khối cách nhau bởi một hoặc nhiều dấu xuống dòng
-//   blocks.forEach((block, index) => {
-//     // console.log(`Khối ${index + 1}:`);
-//     // console.log(block);
-//     // console.log("-------------------");
-//     const lines = block.split("\n"); // Tách văn bản thành mảng các dòng
-//     let obj = {
-//       quiz_id: questionId++,
-//       question: lines[0].trim(),
-//       answers: [],
-//     };
-//     for (let i = 1; i < lines.length; i++) {
-//       //   console.log(lines[i]); // In từng dòng
-//       if (lines[i].trim() !== "") obj.answers.push(lines[i].trim());
-//     }
-//     questions.push(obj);
-//   });
-
-//   // Get Result
-
-//   for (let i = 0; i < questions.length; i++) {
-//     let obj = {
-//       quiz_id: questions[i].quiz_id,
-//       answer: "",
-//     };
-//     for (let j = 0; j < questions[i].answers.length; j++) {
-//       //   console.log(questions[i].answers[j]);
-//       if (questions[i].answers[j].startsWith("*")) {
-//         questions[i].answers[j] = questions[i].answers[j].slice(1);
-//         obj.answer = questions[i].answers[j];
-//       }
-//     }
-//     results.push(obj);
-//   }
-
-//   questions.forEach((item) => {
-//     let obj = {
-//       quiz_id: item.quiz_id,
-//       answer: "",
-//     };
-//     // console.log(item);
-
-//     item.answers.forEach((ans) => {
-//       //   console.log(ans);
-//       if (ans.startsWith("*")) {
-//         ans = ans.slice(1);
-//         obj.answer = ans;
-
-//         // console.log("Chuỗi bắt đầu bằng dấu *.", ans);
-//       }
-//     });
-//     results.push(obj);
-//   });
-
-//   return {
-//     questions: questions,
-//     results: results,
-//   };
-// }
-
-// Chuyển đổi dữ liệu
-// let result = parseQuizData(input);
-
-// In kết quả
-// console.log(result);
-
-// function exportToExcel() {
-//   // Dữ liệu bạn muốn xuất ra Excel
-//   //   const questions = [
-//   //     {
-//   //       quiz_id: 1,
-//   //       question:
-//   //         "You can learn a lot about the local _______ by talking to local people.",
-//   //       answers: ["trien", "territory", "land", "nation", "area"],
-//   //     },
-//   //     {
-//   //       quiz_id: 2,
-//   //       question:
-//   //         "It's good to have someone to ________ you when you are visiting a new place.",
-//   //       answers: ["lead", "take", "guide", "bring"],
-//   //     },
-//   //     {
-//   //       quiz_id: 3,
-//   //       question:
-//   //         "When you ______ your destination, your tour guide will meet you at the airport.",
-//   //       answers: ["arrive", "reach", "get", "achieve"],
-//   //     },
-//   //   ];
-
-//   // Tạo mảng các hàng dữ liệu
-//   const data = [];
-//   result.questions.forEach((q, i) => {
-//     // Tạo mỗi hàng dữ liệu với quiz_id, question và các câu trả lời
-//     data.push([result.results[i].answer, q.question, ...q.answers]);
-//   });
-
-//   // Tạo một worksheet từ dữ liệu
-//   const ws = XLSX.utils.aoa_to_sheet(data);
-
-//   // Tạo một workbook với worksheet vừa tạo
-//   const wb = XLSX.utils.book_new();
-//   XLSX.utils.book_append_sheet(wb, ws, "Questions");
-
-//   // Xuất ra file Excel
-//   XLSX.writeFile(wb, "questions.xlsx");
-// }
-// exportToExcel();

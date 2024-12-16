@@ -73,7 +73,17 @@
         <div class="course_content">
           <h3>Lịch sử Đảng</h3>
         </div>
-        <a href=""><button>Làm</button></a>
+        <div class="button_wrap">
+          <a onclick="handleClickItem(event, '${data.slug}')" href="#"
+            ><button>Do it!</button></a
+          >
+          <a
+            onclick="handleClickItem(event, '${data.slug}')"
+            href="#"
+            class="options"
+            ><button>:</button></a
+          >
+        </div>
       </div>
     </div>
     <style>
@@ -86,10 +96,10 @@
         background-color: #333;
         opacity: 0.3;
         display: none;
+        z-index: 2;
       }
       .form {
         display: none;
-        /* display: flex; */
         flex-direction: column;
         padding: 20px;
         border-radius: 8px;
@@ -100,7 +110,7 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        z-index: 1;
+        z-index: 3;
       }
       .form .checkbox {
         margin-top: 20px;
@@ -112,9 +122,9 @@
       .home_header {
         display: flex;
         justify-content: end;
-        padding: 20px;
+        padding: 12px;
         width: 100%;
-        min-height: 50px;
+        min-height: 20px;
         background-color: white;
       }
       .home_header button {
@@ -149,12 +159,58 @@
       .course_item h3 {
         font-size: 1.5rem;
       }
-      .course_item a {
+      .course_item a.doit {
+        width: 90%;
+      }
+      .course_item a.options {
+        width: 10%;
+        text-decoration: none;
+      }
+      .button_wrap {
+        display: flex;
+        margin-top: 10px;
+        justify-content: center;
+        align-items: center;
+        gap: 5px;
+      }
+      .course_item a.doit button {
         width: 100%;
       }
-      .course_item button {
-        margin-top: 10px;
-        width: 100%;
+      .course_item .options button {
+        padding-right: 0.5rem;
+        padding-left: 0.5rem;
+        background-color: var(--red);
+      }
+      .course_item ul {
+        display: none;
+        position: absolute;
+        background-color: white;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 5px;
+      }
+      .course_item ul li {
+        padding: 10px 15px;
+        cursor: pointer;
+        transition: background-color 0.2s ease-in-out;
+        display: flex;
+        align-items: center;
+        border-radius: 5px;
+      }
+      .course_item ul li a {
+        font-size: 1.4rem;
+        color: #333;
+        text-decoration: none;
+      }
+      .course_item ul li:hover {
+        background-color: #f3f3f3;
+      }
+
+      .course_item ul.active {
+        display: block;
+      }
+      .course_item ul li svg {
+        width: 16px;
+        margin-right: 4px;
       }
     </style>
     <script>
@@ -183,19 +239,44 @@
           const ranAns = document.querySelector("#randomAnswer").checked;
           window.location.href = `quiz.html?slug=${slug}&ranQues=${ranQues}&ranAns=${ranAns}`;
         });
-
-        // overlay.sty
       }
+      function handleUpdateCourse(event, slug) {
+        event.preventDefault();
+        // console.log("update" + slug);
+        window.location.href = `create.html?slug=${slug}&update=true`;
+      }
+      function handleDeleteCourse(event, slug) {
+        event.preventDefault();
+        localStorage.removeItem(slug);
+        alert("Xóa thành công!");
+        renderCourse();
+      }
+      document.addEventListener("click", (event) => {
+        const target = event.target;
+        const options = document.querySelectorAll(".options ul");
+
+        // Kiểm tra nếu click vào nút "options"
+        if (target.closest(".options > button")) {
+          const ul = target.closest(".options").querySelector("ul");
+          ul.classList.toggle("active"); // Đóng/mở menu
+          event.stopPropagation(); // Ngăn chặn sự kiện lan lên
+          return;
+        }
+
+        // Ẩn tất cả các danh sách `ul` nếu click ra ngoài
+        options.forEach((ul) => ul.classList.remove("active"));
+      });
 
       // console.log(btn);
-      let html = "";
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i); // Lấy tên key
-        const value = localStorage.getItem(key); // Lấy giá trị
-        const data = JSON.parse(value);
-        // console.log(data.title);
-        html += `
-        <div class="course_item">
+      function renderCourse() {
+        let html = "";
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i); // Lấy tên key
+          const value = localStorage.getItem(key); // Lấy giá trị
+          const data = JSON.parse(value);
+          // console.log(data.title);
+          html += `
+                <div class="course_item">
           <img
             class="course_image"
             src="./images/background.webp"
@@ -204,15 +285,63 @@
           <div class="course_content">
             <h3>${data.title}</h3>
           </div>
-          
-          <a onclick="handleClickItem(event, '${data.slug}')" href="#"><button>Do it!</button></a>
-
+          <div class="button_wrap">
+            <a onclick="handleClickItem(event, '${data.slug}')" href="#" class="doit">
+              <button>Do it!</button>
+            </a>
+            <div class="options">
+              <button>:</button>
+              <ul>
+                <li onclick="handleUpdateCourse(event, '${data.slug}')">
+                  <a href="#" >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="size-6"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
+                      />
+                    </svg>
+                    Chỉnh sửa
+                  </a>
+                </li>
+                <li  onclick="handleDeleteCourse(event, '${data.slug}')">
+                  <a href="#">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="size-6"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
+                      />
+                    </svg>
+                    Xóa
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
         </div>
         `;
+        }
+        btn = document.querySelectorAll(".course_item button");
+        // console.log(btn);
+        courseWrap.innerHTML = html;
       }
-      btn = document.querySelectorAll(".course_item button");
-      // console.log(btn);
-      courseWrap.innerHTML = html;
+      renderCourse();
+
       // const savedData = localStorage.getItem("lich-su-dang");
       // const data = JSON.parse(savedData);
       // console.log(data);
