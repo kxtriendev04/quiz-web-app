@@ -58,6 +58,15 @@
           <label for="randomAnswer" class="checkbox-label">Đảo trả lời</label>
         </label>
       </div>
+      <div class="radio-wrap">
+        <input type="radio" name="options" id="practice" checked />
+        <label for="practice">Ôn thi</label>
+      </div>
+      <div class="radio-wrap">
+        <input type="radio" name="options" id="test" />
+        <label for="test">Kiểm tra</label>
+        <input type="number" id="quesCount" value="20" />
+      </div>
       <button>Start</button>
     </div>
     <div class="home_header">
@@ -115,6 +124,14 @@
       .form .checkbox {
         margin-top: 20px;
         flex: 1;
+        margin-bottom: 10px;
+      }
+      #quesCount {
+        outline: none;
+        text-align: right;
+        /* padding-left: 50px; */
+        margin-left: 10px;
+        width: 50px;
       }
       .form button {
         margin-top: 30px;
@@ -216,6 +233,10 @@
     <script>
       const overlay = document.querySelector(".overlay");
       const form = document.querySelector(".form");
+      const practiceInput = document.querySelector("#practice");
+      const testInput = document.querySelector("#test");
+      let quesCount = document.querySelector("#quesCount");
+      // console.log(practiceInput, testInput, quesCount);
 
       // Thêm sự kiện click vào overlay
       overlay.addEventListener("click", function () {
@@ -237,7 +258,12 @@
           // Thêm tham số vào URL
           const ranQues = document.querySelector("#randomQuestion").checked;
           const ranAns = document.querySelector("#randomAnswer").checked;
-          window.location.href = `quiz.html?slug=${slug}&ranQues=${ranQues}&ranAns=${ranAns}`;
+          if (practiceInput.checked)
+            window.location.href = `quiz.html?slug=${slug}&ranQues=${ranQues}&ranAns=${ranAns}`;
+          else if (testInput.checked) {
+            quesCount = document.querySelector("#quesCount");
+            window.location.href = `quiz.html?slug=${slug}&ranQues=${ranQues}&ranAns=${ranAns}&count=${quesCount.value}`;
+          }
         });
       }
       function handleUpdateCourse(event, slug) {

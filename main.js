@@ -248,6 +248,7 @@ const quiz = {
     const slug = params.get("slug");
     const ranQues = params.get("ranQues");
     const ranAns = params.get("ranAns");
+    const quesCount = params.get("count");
     const savedData = localStorage.getItem(slug);
     const data = JSON.parse(savedData);
     title.innerText = data.title;
@@ -262,8 +263,12 @@ const quiz = {
     }
 
     questions = data.questions;
+    if (quesCount > 0) {
+      // console.log(questions);
+      questions = questions.slice(0, quesCount);
+    }
     results = data.results;
-    console.log(questions, results);
+    // console.log(questions, results);
   },
   randomQuestion: function () {},
   handleClock: function () {
