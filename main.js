@@ -414,7 +414,8 @@ const quiz = {
     incorrectLabel.innerText = "Số câu sai: " + incorrectCount;
   },
   handleCurrentQuestion: function () {
-    quizQuestion.innerHTML = questions[currentIndex].question;
+    // quizQuestion.innerHTML = questions[currentIndex].question;
+    quizQuestion.innerHTML = `<p>${questions[currentIndex].question}</p`;
     const currentAnswers = questions[currentIndex].answers;
     quizQuestionUl.innerHTML = "";
     currentAnswers.forEach((answer, index) => {

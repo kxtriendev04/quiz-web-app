@@ -14,7 +14,10 @@
       <div class="create_content">
         <div class="button">
           <button class="validate">Validate</button>
-          <p>*Validate trước khi create</p>
+          <div class="notieble">
+            <p>*Validate trước khi create</p>
+            <p>*Viết &lt;/br&gt; để xuống dòng trong câu hỏi</p>
+          </div>
           <button class="create">Create</button>
         </div>
         <input type="text" name="" id="" placeholder="Title" />
@@ -99,6 +102,9 @@
       }
       .create_content button {
         max-width: 100px;
+      }
+      .notieble {
+        margin: 0 4px;
       }
       .create_preview {
         padding: 20px;
@@ -293,7 +299,7 @@
         },
         getDataTextarea: function () {
           data = parseQuizData(textarea.value);
-          // console.log(data);
+          console.log(data);
           // this.handleQuestionList();
           this.handleContentIndex();
         },
@@ -388,7 +394,8 @@
           //listAnswerItems
 
           // render question & ans
-          questionLabel.innerText = question;
+          // questionLabel.innerText = question;
+          questionLabel.innerHTML = `<p>${question}</p`;
           let html = "";
           answer.forEach((ans, index) => {
             if (ans === correctAnswer) {
