@@ -376,3 +376,37 @@ body {
 .fade-out {
   opacity: 0;
 }
+@media (max-width: 768px) {
+  .quiz_wrapper {
+    flex-direction: column;
+    padding: 16px;
+  }
+  .wrap_question {
+    margin: 0;
+    margin: 20px 0;
+  }
+  .wrap_list {
+    width: auto;
+    min-height: 10rem;
+  }
+  .wrap_list ul {
+    max-height: 150px;
+  }
+  .quiz_wrapper {
+    flex-direction: column;
+  }
+
+  .quiz_option {
+    order: 2;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .wrap_question {
+    order: 1;
+  }
+
+  .wrap_list {
+    order: 3;
+  }
+}
